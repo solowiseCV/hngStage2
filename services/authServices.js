@@ -23,8 +23,8 @@ const registerUser = async (userData) => {
     description: '',
   });
 
-  user.organisations.push(organisation);
-  organisation.users.push(user);
+  user.organisations.push(organisation.orgId);
+  organisation.users.push(user.userId);
 
   await user.save();
   await organisation.save();

@@ -2,27 +2,30 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
-  userId: {
-    type: String,
-    unique: true,
-    required: true,
-  },
   firstName: {
     type: String,
-    required: true,
+    required: [true, "This first name field is required"],
+    trim: true,
   },
   lastName: {
     type: String,
-    required: true,
+    required: [true, "This lastname field is required"],
+    trim: true,
   },
   email: {
     type: String,
     unique: true,
-    required: true,
+    required: [true, "This email field is required"],
+    trim: true,
+    match: [
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Please enter a valid email",
+    ]
   },
   password: {
     type: String,
-    required: true,
+    required: [true, "This field is required"],
+    minLength: [6, "Password must be up to 6 characters"],
   },
   phone: {
     type: String,

@@ -5,15 +5,13 @@ import {
   createOrganisation,
   addUserToOrganisation,
 } from '../controllers/organisationController.js';
-import authMiddleware from '../middlewares/authMiddleware.js';
+import verifyToken from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.use(authMiddleware);
-
-router.get('/', getAllOrganisations);
-router.get('/:orgId', getOrganisation);
-router.post('/', createOrganisation);
-router.post('/:orgId/users', addUserToOrganisation);
+router.get('/', verifyToken, getAllOrganisations);
+router.get('/:orgId', verifyToken, getOrganisation);
+router.post('/', verifyToken, createOrganisation);
+router.post('/:orgId/addUser', verifyToken, addUserToOrganisation);
 
 export default router;

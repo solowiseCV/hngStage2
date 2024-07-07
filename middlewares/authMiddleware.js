@@ -1,17 +1,19 @@
 import jwt from 'jsonwebtoken';
 import config from '../config/config.js';
 
-const authMiddleware = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) return res.status(401).json({ message: 'Access Denied' });
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied. No token provided.' });
+  }
 
   try {
-    const verified = jwt.verify(token, config.jwtSecret);
-    req.user = verified;
+    const decoded = jwt.verify(token, config.jwtSecret);
+    req.user = decoded; 
     next();
-  } catch (error) {
-    res.status(400).json({ message: 'Invalid Token' });
+  } catch (ex) {
+    res.status(400).json({ message: 'Invalid token.' });
   }
 };
 
-export default authMiddleware;
+export default verifyToken;

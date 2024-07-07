@@ -1,10 +1,16 @@
-import { v4 as uuidv4 } from 'uuid';
 import Organisation from '../models/organisationModel.js';
 import User from '../models/userModel.js';
 
+// Get All Organisations for a User
 const getAllOrganisations = async (req, res) => {
   const userId = req.user.userId;
   const user = await User.findById(userId).populate('organisations');
+  if (!user) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'User not found',
+    });
+  }
   res.status(200).json({
     status: 'success',
     message: 'Organisations retrieved successfully',
@@ -14,9 +20,16 @@ const getAllOrganisations = async (req, res) => {
   });
 };
 
+// Get Specific Organisation
 const getOrganisation = async (req, res) => {
   const orgId = req.params.orgId;
   const organisation = await Organisation.findById(orgId);
+  if (!organisation) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Organisation not found',
+    });
+  }
   res.status(200).json({
     status: 'success',
     message: 'Organisation retrieved successfully',
@@ -24,18 +37,26 @@ const getOrganisation = async (req, res) => {
   });
 };
 
+// Create Organisation
 const createOrganisation = async (req, res) => {
   const { name, description } = req.body;
   const userId = req.user.userId;
+
   const organisation = new Organisation({
-    orgId: uuidv4(),
     name,
     description,
   });
 
   const user = await User.findById(userId);
-  user.organisations.push(organisation);
-  organisation.users.push(user);
+  if (!user) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'User not found',
+    });
+  }
+
+  user.organisations.push(organisation._id);
+  organisation.users.push(user._id);
 
   await organisation.save();
   await user.save();
@@ -44,16 +65,18 @@ const createOrganisation = async (req, res) => {
     status: 'success',
     message: 'Organisation created successfully',
     data: {
-      orgId: organisation.orgId,
+      orgId: organisation._id,
       name: organisation.name,
       description: organisation.description,
     },
   });
 };
 
+// Add User to Organisation
 const addUserToOrganisation = async (req, res) => {
   const { userId } = req.body;
   const orgId = req.params.orgId;
+
   const organisation = await Organisation.findById(orgId);
   const user = await User.findById(userId);
 
@@ -64,8 +87,8 @@ const addUserToOrganisation = async (req, res) => {
     });
   }
 
-  organisation.users.push(user);
-  user.organisations.push(organisation);
+  organisation.users.push(user._id);
+  user.organisations.push(organisation._id);
 
   await organisation.save();
   await user.save();
@@ -74,8 +97,8 @@ const addUserToOrganisation = async (req, res) => {
     status: 'success',
     message: 'User added to organisation successfully',
     data: {
-      orgId: organisation.orgId,
-      userId: user.userId,
+      orgId: organisation._id,
+      userId: user._id,
     },
   });
 };
