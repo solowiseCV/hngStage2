@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import User from '../models/userModel.js';
 import Organisation from '../models/organisationModel.js';
 import config from '../config/config.js';
@@ -9,7 +8,6 @@ const registerUser = async (userData) => {
   const { firstName, lastName, email, password, phone } = userData;
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({
-    userId: uuidv4(),
     firstName,
     lastName,
     email,
@@ -18,18 +16,17 @@ const registerUser = async (userData) => {
   });
 
   const organisation = new Organisation({
-    orgId: uuidv4(),
     name: `${firstName}'s Organisation`,
     description: '',
   });
 
-  user.organisations.push(organisation.orgId);
-  organisation.users.push(user.userId);
+  user.organisations.push(organisation._id);
+  organisation.users.push(user._id);
 
   await user.save();
   await organisation.save();
 
-  const token = jwt.sign({ userId: user.userId }, config.jwtSecret, { expiresIn: '1h' });
+  const token = jwt.sign({ userId: user._id }, config.jwtSecret, { expiresIn: '1h' });
 
   return { user, token };
 };
@@ -45,7 +42,7 @@ const loginUser = async (email, password) => {
     throw new Error('Authentication failed');
   }
 
-  const token = jwt.sign({ userId: user.userId }, config.jwtSecret, { expiresIn: '1h' });
+  const token = jwt.sign({ userId: user._id }, config.jwtSecret, { expiresIn: '1h' });
 
   return { user, token };
 };
