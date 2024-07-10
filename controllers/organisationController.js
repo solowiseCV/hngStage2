@@ -2,10 +2,14 @@ import mongoose from 'mongoose';
 import Organisation from '../models/organisationModel.js';
 import User from '../models/userModel.js';
 
+
 // Get All Organisations for a User
 const getAllOrganisations = async (req, res) => {
-  const userId = req.user._id;
   
+  const userId = req.userId;
+  console.log(userId);
+  console.log(`User ID: ${userId}`);
+
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({
       status: 'error',
@@ -34,6 +38,8 @@ const getAllOrganisations = async (req, res) => {
 const getOrganisation = async (req, res) => {
   const orgId = req.params.orgId;
 
+  console.log(`Organisation ID: ${orgId}`);
+
   if (!mongoose.Types.ObjectId.isValid(orgId)) {
     return res.status(400).json({
       status: 'error',
@@ -59,9 +65,11 @@ const getOrganisation = async (req, res) => {
 // Create Organisation
 const createOrganisation = async (req, res) => {
   const { name, description } = req.body;
-  const userId = req.user._id;
+  const userId = req.userId;
+  
+  console.log(`User ID: ${userId}`);
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({
       status: 'error',
       message: 'Invalid user ID',
@@ -102,6 +110,8 @@ const createOrganisation = async (req, res) => {
 const addUserToOrganisation = async (req, res) => {
   const { userId } = req.body;
   const orgId = req.params.orgId;
+
+  console.log(`User ID: ${userId}, Organisation ID: ${orgId}`);
 
   if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(orgId)) {
     return res.status(400).json({
